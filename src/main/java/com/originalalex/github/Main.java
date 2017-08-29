@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             JDA jda = new JDABuilder(AccountType.CLIENT)
-                    .setToken("MjY0MzU1MTEzNTAwNDA5ODU2.C0fXdQ.FUsDvDIIiVt_gn2ZMWLfrEEN2BI")
+                    .setToken([MY CLIENT TOKEN])
                     .buildBlocking();
             jda.addEventListener(new MessageListener(jda));
         } catch (Exception e) {
