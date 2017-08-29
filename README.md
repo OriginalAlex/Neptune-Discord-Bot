@@ -1,10 +1,13 @@
 # Discord Bot
 This is a fairly simple Discord selfbot I have been working on which aims to facilitate certain aspects of Discord and provide easy access to certain information (and of course some superfluous fun commands)
 
+
 ## **Current Commands:**
 **- me.wiki [Article Name]** --> Returns the first paragraph of a wikipedia article in an aesthetic message embed.
 
 **- me.crypto [Cryptocurrency]** --> Returns information on a cryptocurrency such as its price, market cap, 24 hour volume and circulating supply
+
+**-me.plaing [Game]** --> Edits your playing game name. Names can be of non-existent games, eg: _me.playing nothing_ will set your playing game to "nothing"
 
 **- me.pic** --> Shows a beautiful pic of a location on earth
 
@@ -21,8 +24,6 @@ This is a fairly simple Discord selfbot I have been working on which aims to fac
 **- me.serverStatus [Minecraft Server]** --> Will return information on a minecraft server including its player count, motd and your ping to it
 
 **- me.purge [Number]** --> Will delete your last n messages in channel you talked in
-
-**
 
 
 ## **Prerequisites:**
