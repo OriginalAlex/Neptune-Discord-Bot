@@ -15,9 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-/**
- * Created by Alex on 29/08/2017.
- */
 public class BeautifulPic implements Function {
 
     @Override
@@ -47,7 +44,6 @@ public class BeautifulPic implements Function {
             System.out.println("ay");
             ex.printStackTrace();
         }
-        System.out.println(System.currentTimeMillis() - start);
     }
 
     private JsonObject readPageAsJson(String url) {

@@ -7,8 +7,6 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import java.awt.*;
-
 public class MessageListener extends ListenerAdapter {
 
     private JDA jda;
@@ -20,6 +18,8 @@ public class MessageListener extends ListenerAdapter {
     private Nyan nyan;
     private Purge purge;
     private HorizontalLine hl;
+    private BeautifulPic bp;
+    private Crypto crypto;
 
     public MessageListener(JDA jda) {
         this.jda = jda;
@@ -30,6 +30,8 @@ public class MessageListener extends ListenerAdapter {
         this.wikiFunction = new Wiki(scrape);
         this.nyan = new Nyan();
         this.purge = new Purge();
+        this.bp = new BeautifulPic();
+        this.crypto = new Crypto();
     }
 
     @Override
@@ -49,6 +51,9 @@ public class MessageListener extends ListenerAdapter {
                             purge.handle(e);
                         }
                         break;
+                    case "me.crypto":
+                        crypto.setTicker(parts[1]);
+                        crypto.handle(e);
                 }
             } else if (parts.length == 1) {
                 switch (parts[0].toLowerCase()) {
@@ -64,6 +69,9 @@ public class MessageListener extends ListenerAdapter {
                     case "me.hl":
                         hl.handle(e);
                         break;
+                    case "me.pic":
+                    case "me.beautifulpic":
+                        bp.handle(e);
                 }
             }
 

@@ -7,13 +7,11 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-/**
- * Created by Alex on 29/08/2017.
- */
 public class Purge implements Function {
 
     private int depth;
 
+    @Override
     public void handle(MessageReceivedEvent e) {
         User user = e.getAuthor();
         MessageHistory history = new MessageHistory(e.getTextChannel());

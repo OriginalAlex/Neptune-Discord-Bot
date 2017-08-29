@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Alex on 28/08/2017.
- */
 public class Scrape {
 
     private static final String BASE_WIKI_LINK = "https://en.wikipedia.org/wiki/";
@@ -31,7 +28,7 @@ public class Scrape {
         return paragraphs.get(0); // simply a paragraph
     }
 
-    public List<String> getFirstWikiParagraphs(String query, int number) {
+    private List<String> getFirstWikiParagraphs(String query, int number) {
         List<String> paragraphs = new ArrayList<>();
         try {
             Document doc = Jsoup.connect(BASE_WIKI_LINK + query)
