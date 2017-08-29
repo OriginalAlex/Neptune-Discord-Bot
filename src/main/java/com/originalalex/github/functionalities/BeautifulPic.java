@@ -5,10 +5,10 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 /**
  * Created by Alex on 29/08/2017.
  */
-public class HorizontalLine implements Function {
+public class BeautifulPic implements Function {
 
     @Override
     public void handle(MessageReceivedEvent e) {
-        e.getChannel().sendMessage("=======================================").queue();
+        
     }
 }

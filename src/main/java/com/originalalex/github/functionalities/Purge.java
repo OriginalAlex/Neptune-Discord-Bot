@@ -10,24 +10,20 @@ import java.util.List;
 /**
  * Created by Alex on 29/08/2017.
  */
-public class Purge extends Function {
+public class Purge implements Function {
 
     private int depth;
 
     public void handle(MessageReceivedEvent e) {
         User user = e.getAuthor();
-        MessageHistory history = e.getChannel().getHistory();
+        MessageHistory history = new MessageHistory(e.getTextChannel());
         List<Message> retrievedHistory = history.getRetrievedHistory();
         int depthSoFar = 0;
-        for (Message m : retrievedHistory) {
-            if (depthSoFar == depth) { // If we have gone far enough into the history
-                break;
-            }
-            if (m.getAuthor().getName().equals("PQE")) {
-                m.delete();
-                depthSoFar++;
-            }
-        }
+        System.out.println(retrievedHistory.size());
+        retrievedHistory.stream()
+                .filter(f -> f.getAuthor().equals("PQE"))
+                .limit(depth)
+                .forEach(Message::delete);
     }
 
     public void setDepth(int depth) {

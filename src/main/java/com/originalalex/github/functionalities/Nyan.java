@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 /**
  * Created by Alex on 29/08/2017.
  */
-public class Nyan extends Function {
+public class Nyan implements Function {
 
     @Override
     public void handle(MessageReceivedEvent e) {

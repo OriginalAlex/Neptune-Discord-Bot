@@ -1,9 +1,6 @@
 package com.originalalex.github.listener;
 
-import com.originalalex.github.functionalities.HorizontalLine;
-import com.originalalex.github.functionalities.Nyan;
-import com.originalalex.github.functionalities.Purge;
-import com.originalalex.github.functionalities.Wiki;
+import com.originalalex.github.functionalities.*;
 import com.originalalex.github.helper.NumberParser;
 import com.originalalex.github.scrape.Scrape;
 import net.dv8tion.jda.core.JDA;
@@ -51,9 +48,11 @@ public class MessageListener extends ListenerAdapter {
                             purge.setDepth(depth);
                             purge.handle(e);
                         }
+                        break;
                 }
             } else if (parts.length == 1) {
                 switch (parts[0].toLowerCase()) {
+                    case "me.cat":
                     case "me.nyan":
                         nyan.handle(e);
                         break;
@@ -61,6 +60,7 @@ public class MessageListener extends ListenerAdapter {
                     case "me.quit":
                         System.exit(0); // close the application
                         break;
+                    case "me.horizontalline":
                     case "me.hl":
                         hl.handle(e);
                         break;
