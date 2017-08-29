@@ -7,6 +7,8 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+import javax.sound.sampled.Clip;
+
 public class MessageListener extends ListenerAdapter {
 
     private JDA jda;
@@ -20,6 +22,7 @@ public class MessageListener extends ListenerAdapter {
     private HorizontalLine hl;
     private BeautifulPic bp;
     private Crypto crypto;
+    private Clipboard clipboard;
 
     public MessageListener(JDA jda) {
         this.jda = jda;
@@ -32,6 +35,7 @@ public class MessageListener extends ListenerAdapter {
         this.purge = new Purge();
         this.bp = new BeautifulPic();
         this.crypto = new Crypto();
+        this.clipboard = new Clipboard();
     }
 
     @Override
@@ -68,6 +72,10 @@ public class MessageListener extends ListenerAdapter {
                     case "me.horizontalline":
                     case "me.hl":
                         hl.handle(e);
+                        break;
+                    case "me.pasteclipboard":
+                    case "me.clipboard":
+                        clipboard.handle(e);
                         break;
                     case "me.pic":
                     case "me.beautifulpic":
