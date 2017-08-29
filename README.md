@@ -3,10 +3,15 @@ This is a fairly simple Discord selfbot I have been working on which aims to fac
 
 ## **In its current states, the commands are:**
 **- me.wiki [Article Name]** --> Returns the first paragraph of a wikipedia article in an aesthetic message embed.
+
 **- me.crypto [Cryptocurrency]** --> Returns information on a cryptocurrency such as its price, market cap, 24 hour volume and circulating supply
+
 **- me.pic** --> Shows a beautiful pic of a location on earth
+
 **- me.nyan** --> Displays a loveable nyan cat :>
+
 **- me.hl** --> Displays a horizontal line
+
 
 ## **Prerequisites:**
 The following are the required dependencies:
