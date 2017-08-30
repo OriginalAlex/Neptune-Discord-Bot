@@ -15,7 +15,7 @@ public class DatabaseCommunicator {
         return INSTANCE;
     }
 
-    public void connect() {
+    private void connect() {
         try {
             String url = "jdbc:sqlite:C:\\Users\\Alex\\Desktop\\SQLite\\Discord.db";
             connection = DriverManager.getConnection(url);
@@ -23,13 +23,16 @@ public class DatabaseCommunicator {
 
             // Create the data table if it doesn't exist
             statement.execute("CREATE TABLE IF NOT EXISTS ranks(channel text, id text, rating int, posRatings int, negRatings int)");
+
+            statement.execute("CREATE TABLE IF NOT EXISTS cooldowns(ratingPerson text, ratedPerson text, timeRated long)");
+
             connected = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    //String Channel, String id, int rating, int posRatings, int negRatings are the values for the rows
+    // Rank aspect:
 
     public void setData(String channel, String id, int rating, int posRatings, int negRatings) {
         if (!connected) {
@@ -58,15 +61,14 @@ public class DatabaseCommunicator {
         }
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(SELECT_SPECIFIC.replace("%id%", id).replaceAll("%channel%", channel));
-            return resultSet;
+            return statement.executeQuery(SELECT_SPECIFIC.replace("%id%", id).replaceAll("%channel%", channel));
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public boolean rowExists(String channel, String id) { // Needs to be an entry under a certain channel and id
+    private boolean rowExists(String channel, String id) { // Needs to be an entry under a certain channel and id
         try {
             return fetchRow(channel, id).next();
         } catch (SQLException e) {
@@ -83,5 +85,36 @@ public class DatabaseCommunicator {
             e.printStackTrace();
         }
     }
+
+    // Cooldown aspect:
+
+    public void addCooldown(String rater, String rated) {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("INSERT INTO cooldowns VALUES('" + rater + "', '" + rated + "', " + System.currentTimeMillis() + ")");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getCooldown(String rater, String rated) { // Returns the time in seconds remaining, or -1 if the cooldown is either over or no cooldown existed
+        if (!connected) {
+            connect();
+        }
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet result = statement.executeQuery("SELECT * FROM cooldowns WHERE ratingPerson LIKE '" + rater + "' AND ratedPerson like '" + rated + "'");
+            if (result.next()) { // an entry was found
+                int value = 21600 - (int) (System.currentTimeMillis() - result.getLong("timeRated")) / 1000; // get the number of seconds remaining [cooldown set to 6 hours for now]
+                return value < 0 ? -1 : value;
+            } else {
+                return -1;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
 
 }

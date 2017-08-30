@@ -25,7 +25,6 @@ public class SimpleDisplay implements Function {
     }
 
     private void showRating(MessageReceivedEvent e) {
-        //System.out.println(e.getAuthor().getId() + " test");
         ResultSet info = db.fetchRow(e.getGuild().getName(), e.getAuthor().getId());
         try {
             if (info.next()) { // There is an entry under their name

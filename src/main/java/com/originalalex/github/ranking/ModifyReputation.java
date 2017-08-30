@@ -1,6 +1,7 @@
 package com.originalalex.github.ranking;
 
 import com.originalalex.github.functionalities.Function;
+import com.originalalex.github.helper.ReadableTime;
 import com.originalalex.github.helper.UserID;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -39,6 +40,18 @@ public class ModifyReputation implements Function {
         }
         String senderUserID = e.getMessage().getAuthor().getId();
         String targetUserID = parts[2];
+
+        int cooldown = db.getCooldown(senderUserID, targetUserID);
+        if (cooldown != -1) { // there is still an active cooldown
+            MessageEmbed embed = new EmbedBuilder()
+                    .setColor(Color.CYAN)
+                    .setTitle("Rating Cooldown")
+                    .setDescription("You still have an active cooldown of " + ReadableTime.convertSeconds(cooldown) + " remaining")
+                    .build();
+            e.getChannel().sendMessage(embed).queue();
+            return;
+        }
+
         String channel = e.getGuild().getName();
         int sendersRating = getRating(e, senderUserID);
 
@@ -72,12 +85,12 @@ public class ModifyReputation implements Function {
                         .setDescription("Due to " + e.getAuthor().getName() + "'s rating, your new rating is " + targetsNewRating + ", " + helperClass.getMember(e, targetUserID).getEffectiveName() + ".")
                         .build();
                 e.getChannel().sendMessage(embed).queue();
+                db.addCooldown(senderUserID, targetUserID);
 
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
-
     }
 
     private int getRating(MessageReceivedEvent e, String id) {
