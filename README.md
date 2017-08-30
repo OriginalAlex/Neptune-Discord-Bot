@@ -1,29 +1,30 @@
 # Discord Bot
-This is a fairly simple Discord selfbot I have been working on which aims to facilitate certain aspects of Discord and provide easy access to certain information (and of course some superfluous fun commands)
+This is a fairly simple Discord bot I have been working on which aims to facilitate certain aspects of Discord and provide easy access to certain information (and of course some superfluous fun commands)
 
 
 ## **Current Commands:**
-**- me.wiki [Article Name]** --> Returns the first paragraph of a wikipedia article in an aesthetic message embed.
 
-**- me.crypto [Cryptocurrency]** --> Returns information on a cryptocurrency such as its price, market cap, 24 hour volume and circulating supply
+**-neptune.rep [+/-] @User** --> Increases or decreases the reputation of a user, and states the user's new rating.
 
-**-me.plaing [Game]** --> Edits your playing game name. Names can be of non-existent games, eg: _me.playing nothing_ will set your playing game to "nothing"
+**-neptune.rep show** --> Show information about your reputation including your rating, the number of people who rated you positively, and the number of people who rated you negatively
 
-**- me.pic** --> Shows a beautiful pic of a location on earth
+**-neptune.rep leaderboards <number>** --> The default size of the leaderboards is 10, but you can specify a length and this will show the users with the highest reputation rating.
 
-**-me.clipboard** --> Pastes your clipboard
+**- neptune.wiki [Article Name]** --> Returns the first paragraph of a wikipedia article in an aesthetic message embed.
 
-**- me.nyan** --> Displays a loveable nyan cat :>
+**- neptune.crypto [Cryptocurrency]** --> Returns information on a cryptocurrency such as its price, market cap, 24 hour volume and circulating supply.
 
-**- me.hl** --> Displays a horizontal line
+**- neptune.pic** --> Shows a beautiful pic of a location on earth.
 
-**-me.exit** --> Kills the process
+**- neptune.nyan** --> Displays a loveable nyan cat :>
+
+**- neptune.hl** --> Displays a horizontal line.
 
 
 ## **To-be implemented commands:**
 **- me.serverStatus [Minecraft Server]** --> Will return information on a minecraft server including its player count, motd and your ping to it
 
-**- me.purge [Number]** --> Will delete your last n messages in channel you talked in
+**-me.strawpoll [arguments]** --> This will begin a strawpoll, which the creator can then manipulate, or perhaps only people in the discord with certain permissions will be able to utilize this feature.
 
 
 ## **Prerequisites:**
