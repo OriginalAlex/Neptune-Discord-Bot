@@ -1,86 +1,70 @@
 package com.originalalex.github.listener;
 
 import com.originalalex.github.functionalities.*;
-import com.originalalex.github.helper.NumberParser;
-import com.originalalex.github.scrape.Scrape;
+import com.originalalex.github.ranking.ModifyReputation;
+import com.originalalex.github.ranking.SimpleDisplay;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import javax.sound.sampled.Clip;
-
 public class MessageListener extends ListenerAdapter {
 
-    private JDA jda;
-    private Scrape scrape;
-    private NumberParser parser;
-
     // Functions:
-    private Wiki wikiFunction;
-    private Nyan nyan;
-    private Purge purge;
-    private HorizontalLine hl;
-    private BeautifulPic bp;
-    private Crypto crypto;
-    private Clipboard clipboard;
+    private Wiki wikiFunction; // Get the first paragraph from wikipedia on a certain topic
+    private Nyan nyan; // Paste a nyan cat
+    private HorizontalLine hl; // Paste a horizontal line
+    private BeautifulPic bp; // Scrape the top image from /r/EarthPorn for the past 24 hours
+    private Crypto crypto; // Grabbing information about the market cap, price, and volume of a cryptocurrency
+    private ModifyReputation modifyReputation; // The class to do with changing reputation
+    private SimpleDisplay simpleDisplay; // Showing reputation
 
     public MessageListener(JDA jda) {
-        this.jda = jda;
-        this.scrape = new Scrape();
-        this.parser = new NumberParser();
-
         this.hl = new HorizontalLine();
-        this.wikiFunction = new Wiki(scrape);
+        this.wikiFunction = new Wiki();
         this.nyan = new Nyan();
-        this.purge = new Purge();
         this.bp = new BeautifulPic();
         this.crypto = new Crypto();
-        this.clipboard = new Clipboard();
+        this.modifyReputation = new ModifyReputation();
+        this.simpleDisplay = new SimpleDisplay();
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent e) {
-        if (e.getAuthor().getName().equals("PQE")) {
-            String[] parts = e.getMessage().getStrippedContent().split(" ");
-            if (parts.length == 2) {
-                switch (parts[0].toLowerCase()) {
-                    case "me.wiki":
-                        wikiFunction.setQuery(parts[1]);
-                        wikiFunction.handle(e);
-                        break;
-                    case "me.purge":
-                        int depth = parser.parse(parts[1]);
-                        if (depth > 0) {
-                            purge.setDepth(depth);
-                            purge.handle(e);
-                        }
-                        break;
-                    case "me.crypto":
-                        crypto.setTicker(parts[1]);
-                        crypto.handle(e);
-                }
-            } else if (parts.length == 1) {
-                switch (parts[0].toLowerCase()) {
-                    case "me.cat":
-                    case "me.nyan":
-                        nyan.handle(e);
-                        break;
-                    case "me.exit":
-                    case "me.quit":
-                        System.exit(0); // close the application
-                        break;
-                    case "me.horizontalline":
-                    case "me.hl":
-                        hl.handle(e);
-                        break;
-                    case "me.pasteclipboard":
-                    case "me.clipboard":
-                        clipboard.handle(e);
-                        break;
-                    case "me.pic":
-                    case "me.beautifulpic":
-                        bp.handle(e);
-                }
+        String[] parts = e.getMessage().getStrippedContent().split(" ");
+        if (parts.length == 3) {
+            if (parts[0].equalsIgnoreCase("neptune.rep")) {
+                parts[2] = e.getMessage().getMentionedUsers().get(0).getId(); // Set this to the ID of the target user
+                modifyReputation.setParts(parts);
+                modifyReputation.handle(e);
+            }
+        }
+        else if (parts.length == 2) {
+            switch (parts[0].toLowerCase()) {
+                case "neptune.rep":
+                    simpleDisplay.setSecondArgument(parts[1]);
+                    simpleDisplay.handle(e);
+                    break;
+                case "neptune.wiki":
+                    wikiFunction.setQuery(parts[1]);
+                    wikiFunction.handle(e);
+                    break;
+                case "neptune.crypto":
+                    crypto.setTicker(parts[1]);
+                    crypto.handle(e);
+            }
+        } else if (parts.length == 1) {
+            switch (parts[0].toLowerCase()) {
+                case "neptune.cat":
+                case "neptune.nyan":
+                    nyan.handle(e);
+                    break;
+                case "neptune.horizontalline":
+                case "neptune.hl":
+                    hl.handle(e);
+                    break;
+                case "neptune.pic":
+                case "neptune.beautifulpic":
+                    bp.handle(e);
             }
 
         }

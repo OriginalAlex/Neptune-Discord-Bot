@@ -16,9 +16,9 @@ public class Wiki implements Function {
     private String query;
     private Scrape scrape;
 
-    public Wiki(Scrape scrape) {
+    public Wiki() {
         this.query = query;
-        this.scrape = scrape;
+        this.scrape = new Scrape();
     }
 
     @Override
