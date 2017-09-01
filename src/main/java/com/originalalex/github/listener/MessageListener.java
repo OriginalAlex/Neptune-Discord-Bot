@@ -3,6 +3,7 @@ package com.originalalex.github.listener;
 import com.originalalex.github.functionalities.*;
 import com.originalalex.github.ranking.ModifyReputation;
 import com.originalalex.github.ranking.SimpleDisplay;
+import com.originalalex.github.ranking.WipeDatabase;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -17,6 +18,7 @@ public class MessageListener extends ListenerAdapter {
     private Crypto crypto; // Grabbing information about the market cap, price, and volume of a cryptocurrency
     private ModifyReputation modifyReputation; // The class to do with changing reputation
     private SimpleDisplay simpleDisplay; // Showing reputation
+    private WipeDatabase wipeDatabase; // Clear the reputation database
 
     public MessageListener(JDA jda) {
         this.hl = new HorizontalLine();
@@ -25,17 +27,22 @@ public class MessageListener extends ListenerAdapter {
         this.bp = new BeautifulPic();
         this.crypto = new Crypto();
         this.modifyReputation = new ModifyReputation();
-        this.simpleDisplay = new SimpleDisplay();
+        this.simpleDisplay = new SimpleDisplay(modifyReputation.getLevel());
+        this.wipeDatabase = new WipeDatabase();
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent e) {
         String[] parts = e.getMessage().getStrippedContent().split(" ");
         if (parts.length == 3) {
-            if (parts[0].equalsIgnoreCase("neptune.rep")) {
-                parts[2] = e.getMessage().getMentionedUsers().get(0).getId(); // Set this to the ID of the target user
-                modifyReputation.setParts(parts);
-                modifyReputation.handle(e);
+            switch (parts[0].toLowerCase()) {
+                case "neptune.rep":
+                    parts[2] = e.getMessage().getMentionedUsers().get(0).getId(); // Set this to the ID of the target user
+                    modifyReputation.setParts(parts);
+                    modifyReputation.handle(e);
+                    break;
+                case "neptune.setrep":
+                    modifyReputation.setRep(e);
             }
         }
         else if (parts.length == 2) {
@@ -54,6 +61,10 @@ public class MessageListener extends ListenerAdapter {
             }
         } else if (parts.length == 1) {
             switch (parts[0].toLowerCase()) {
+                case "neptune.wipe":
+                case "neptune.dbclear":
+                    wipeDatabase.handle(e);
+                    break;
                 case "neptune.cat":
                 case "neptune.nyan":
                     nyan.handle(e);

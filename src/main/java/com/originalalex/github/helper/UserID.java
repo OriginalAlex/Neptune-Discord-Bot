@@ -11,7 +11,7 @@ public class UserID {
         return getMember(e, id) != null;
     }
 
-    public Member getMember(MessageReceivedEvent e, String id) {
+    public static Member getMember(MessageReceivedEvent e, String id) {
         return e.getGuild().getMemberById(id);
     }
 
