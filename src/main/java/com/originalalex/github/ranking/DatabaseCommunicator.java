@@ -1,28 +1,42 @@
 package com.originalalex.github.ranking;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.originalalex.github.helper.FileHelper;
+import jdk.nashorn.internal.parser.JSONParser;
+
+import java.nio.charset.Charset;
 import java.sql.*;
 
 public class DatabaseCommunicator {
 
     private Connection connection;
     private boolean connected = false;
+    private int cooldown = 0;
+    private boolean cooldownHasBeenInitialized; // to inform certain methods that the cooldown has been set already (to avoid calling the same method repetitively)
 
     private static final String INSERT_INFO = "INSERT INTO ranks VALUES('%channel%', '%id%', %rating%, %posRatings%, %negRatings%)";
-    private static final String SELECT_SPECIFIC = "SELECT * FROM ranks WHERE id LIKE '%id%' AND channel LIKE '%channel%'";
+    private static final String SELECT_SPECIFIC = "SELECT * FROM ranks WHERE id LIKE '%id%' AND channel LIKE '%channel%' LIMIT 1"; // Can limit to 1 because hopefully channel/id are unique
     private static final DatabaseCommunicator INSTANCE = new DatabaseCommunicator();
 
     public static DatabaseCommunicator getInstance() {
         return INSTANCE;
     }
 
+    private DatabaseCommunicator() {
+        connect();
+        setCooldown();
+    }
+
     private void connect() {
         try {
-            String url = "jdbc:sqlite:C:\\Users\\Alex\\Desktop\\SQLite\\Discord.db";
+            String url = "jdbc:sqlite:src/main/config/Discord.db";
             connection = DriverManager.getConnection(url);
             Statement statement = connection.createStatement();
 
             // Create the data table if it doesn't exist
-            statement.execute("CREATE TABLE IF NOT EXISTS ranks(channel text, id text, rating int, posRatings int, negRatings int)");
+            statement.execute("CREATE TABLE IF NOT EXISTS ranks(channel text, id text, rating int, posRatings int, negRatings int)"); // Do this in case it is their first installation
 
             statement.execute("CREATE TABLE IF NOT EXISTS cooldowns(ratingPerson text, ratedPerson text, timeRated long)");
 
@@ -35,9 +49,6 @@ public class DatabaseCommunicator {
     // Rank aspect:
 
     public void setData(String channel, String id, int rating, int posRatings, int negRatings) {
-        if (!connected) {
-            connect();
-        }
         try {
             Statement statement = connection.createStatement();
             if (!rowExists(channel, id)) {
@@ -56,9 +67,6 @@ public class DatabaseCommunicator {
     }
 
     public ResultSet fetchRow(String channel, String id) {
-        if (!connected) {
-            connect();
-        }
         try {
             Statement statement = connection.createStatement();
             return statement.executeQuery(SELECT_SPECIFIC.replace("%id%", id).replaceAll("%channel%", channel));
@@ -91,21 +99,31 @@ public class DatabaseCommunicator {
     public void addCooldown(String rater, String rated) {
         try {
             Statement statement = connection.createStatement();
-            statement.executeUpdate("INSERT INTO cooldowns VALUES('" + rater + "', '" + rated + "', " + System.currentTimeMillis() + ")");
+            if (getCooldownEntry(rater, rated).next()) {
+                statement.executeUpdate("UPDATE cooldowns " + "SET timeRated = " + System.currentTimeMillis() + " WHERE ratingPerson LIKE " + rater + " AND ratedPerson LIKE " + rated);
+            } else {
+                statement.executeUpdate("INSERT INTO cooldowns VALUES('" + rater + "', '" + rated + "', " + System.currentTimeMillis() + ")");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public int getCooldown(String rater, String rated) { // Returns the time in seconds remaining, or -1 if the cooldown is either over or no cooldown existed
-        if (!connected) {
-            connect();
-        }
+    private ResultSet getCooldownEntry(String rater, String rated) {
         try {
             Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM cooldowns WHERE ratingPerson LIKE '" + rater + "' AND ratedPerson like '" + rated + "'");
+            return statement.executeQuery("SELECT * FROM cooldowns WHERE ratingPerson LIKE '" + rater + "' AND ratedPerson like '" + rated + "'");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public int getCooldown(String rater, String rated) { // Returns the time in seconds remaining, or -1 if the cooldown is either over or no cooldown existed
+        try {
+            ResultSet result = getCooldownEntry(rater, rated);
             if (result.next()) { // an entry was found
-                int value = 21600 - (int) (System.currentTimeMillis() - result.getLong("timeRated")) / 1000; // get the number of seconds remaining [cooldown set to 6 hours for now]
+                int value = cooldown - (int) (System.currentTimeMillis() - result.getLong("timeRated")) / 1000; // get the number of seconds remaining [cooldown set to 6 hours for now]
                 return value < 0 ? -1 : value;
             } else {
                 return -1;
@@ -114,6 +132,13 @@ public class DatabaseCommunicator {
             e.printStackTrace();
             return -1;
         }
+    }
+
+    private void setCooldown() {
+        String json = FileHelper.getFileAsString(Charset.defaultCharset());
+        JsonParser parser = new JsonParser();
+        JsonObject root = parser.parse(json).getAsJsonObject();
+        cooldown = root.get("rep_cooldown_time_seconds").getAsInt();
     }
 
 

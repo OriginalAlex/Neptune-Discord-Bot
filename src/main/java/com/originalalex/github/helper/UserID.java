@@ -12,7 +12,6 @@ public class UserID {
     }
 
     public Member getMember(MessageReceivedEvent e, String id) {
-        System.out.println(e.getGuild().getMemberById(id));
         return e.getGuild().getMemberById(id);
     }
 

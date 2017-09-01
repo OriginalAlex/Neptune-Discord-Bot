@@ -1,0 +1,22 @@
+{
+  "rep_cooldown_time_seconds": 21600,
+  "rep_rankup_every_x_levels": 3,
+  "rep_emotes": [
+    {
+      "emote": "➕",
+      "emote_level": 0
+    },
+    {
+      "emote": "💎",
+      "emote_level": 5
+    },
+    {
+      "emote": "👑",
+      "emote_level": 10
+    }
+  ],
+  "id_of_users_who_can_setrep": [
+    "inputUsersHere",
+    "264355113500409856"
+  ]
+}
