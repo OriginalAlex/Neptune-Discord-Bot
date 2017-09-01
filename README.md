@@ -4,11 +4,17 @@ This is a fairly simple Discord bot I have been working on which aims to facilit
 
 ## **Current Commands:**
 
-**-neptune.rep [+/-] @User** --> Increases or decreases the reputation of a user, and states the user's new rating.
+**- neptune.rep [+/-] @User** --> Increases or decreases the reputation of a user, and states the user's new rating.
 
-**-neptune.rep show** --> Show information about your reputation including your rating, the number of people who rated you positively, and the number of people who rated you negatively
+**- neptune.rep show** --> Show information about your reputation including your rating, the number of people who rated you positively, and the number of people who rated you negatively
 
-**-neptune.rep leaderboards <number>** --> The default size of the leaderboards is 10, but you can specify a length and this will show the users with the highest reputation rating.
+**- neptune.rep [Username]** --> Show similar information about another user
+
+**- neptune.setrep [Username] **
+
+**- neptune.rep** --> Display the help for all reputation commands.
+
+**- neptune.rep leaderboards [number]** --> The default size of the leaderboards is 10, but you can specify a length and this will show the users with the highest reputation rating.
 
 **- neptune.wiki [Article Name]** --> Returns the first paragraph of a wikipedia article in an aesthetic message embed.
 
