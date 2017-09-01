@@ -35,11 +35,13 @@ public class ModifyReputation implements Function {
 
     private Map<Integer, String> emotesAndLevels;
     private List<String> usersWhoCanSetrep;
+    private int getLevel;
 
     public ModifyReputation() {
         this.helperClass = new UserID();
         this.rankingCalculator = new RankingCalculator();
         this.db = DatabaseCommunicator.getInstance();
+        initializeEmotesMapAndUsers();
     }
 
     @Override
@@ -125,9 +127,6 @@ public class ModifyReputation implements Function {
         if (!positiveRating) { // Never changes
             return "❌";
         }
-        if (emotesAndLevels == null) { // We must read the JSON file and get the options
-            initializeEmotesMapAndUsers();
-        }
         for (Map.Entry<Integer, String> entry : emotesAndLevels.entrySet()) { // loop through all entries
             if (level >= entry.getKey()) {
                 return entry.getValue();
@@ -144,6 +143,7 @@ public class ModifyReputation implements Function {
             JsonArray emotesArray = root.getAsJsonArray("rep_emotes");
 
             emotesAndLevels = new TreeMap<>(Collections.reverseOrder()); // Keys should be in descending order
+            getLevel = root.get("rep_rankup_every_x_levels").getAsInt();
 
             for (int i = 0; i < emotesArray.size(); i++) { // Start from the end of the array (so we get the numbers in descending order
                 JsonElement obj = emotesArray.get(i);
@@ -206,9 +206,6 @@ public class ModifyReputation implements Function {
     // Set rating [ADMIN COMMAND]
 
     public void setRep(MessageReceivedEvent e) { // Will be of the format [neptune.setrep @[NAME] [LEVEL]
-        if (usersWhoCanSetrep == null) {
-            initializeEmotesMapAndUsers();
-        }
         if (!usersWhoCanSetrep.contains(e.getAuthor().getId())) {
             e.getChannel().sendMessage("You do not have permission to perform this command!").queue();
         }
@@ -224,7 +221,6 @@ public class ModifyReputation implements Function {
                     posRatings = resultSet.getInt("posRatings");
                     negRatings = resultSet.getInt("negRatings");
                 } else {
-                    System.out.println("invalid");
                     posRatings = 0;
                     negRatings = 0;
                 }
@@ -243,6 +239,11 @@ public class ModifyReputation implements Function {
                 e.getChannel().sendMessage("Please input a valid level!");
             }
         }
+    }
+
+
+    public int getLevel() {
+        return this.getLevel;
     }
 
 }

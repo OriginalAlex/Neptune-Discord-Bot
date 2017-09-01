@@ -33,6 +33,7 @@ public class DatabaseCommunicator {
 
     private void connect() {
         try {
+            //Class.forName("org.sqlite");
             String url = "jdbc:sqlite:src/main/resources/Discord.db";
             connection = DriverManager.getConnection(url);
             Statement statement = connection.createStatement();
@@ -160,6 +161,18 @@ public class DatabaseCommunicator {
             e.printStackTrace();
         }
         return null;
+    }
+
+    // Wiping database:
+
+    public void wipeDatabase() {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("DELETE FROM ranks");
+            statement.executeUpdate("DELETE FROM cooldowns");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 
