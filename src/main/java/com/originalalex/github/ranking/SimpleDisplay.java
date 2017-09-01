@@ -17,6 +17,11 @@ public class SimpleDisplay implements Function {
     private String secondArgument;
     private UserID user;
     private DatabaseCommunicator db = DatabaseCommunicator.getInstance();
+    private int rankupLevel;
+
+    public SimpleDisplay(int rankupEveryXLevels) {
+        this.rankupLevel = rankupEveryXLevels;
+    }
 
     @Override
     public void handle(MessageReceivedEvent e) {
@@ -46,17 +51,17 @@ public class SimpleDisplay implements Function {
                 .setColor(Color.CYAN)
                 .setTitle("Rating Help")
                 .setDescription("The rating system is to evaluate a user's value to a server. The following are valid commands for ratings:\n" +
-                "__**neptune.rep [+/-]**__ = Increases or decreases the reputation of a user, and states the user's new rating\n" +
+                "__**neptune.rep [+/-] [User]**__ = Increases or decreases the reputation of a user, and states the user's new rating\n" +
                 "__**neptune.rep show and neptune.show**__ = Show information about your reputation including your rating, the number of people who rated you positively, and the number of people who rated you negatively\n" +
-                "__**neptune.rep [NAME] = Shows similar information about a specified player\n" +
+                "__**neptune.rep [NAME]**__ = Shows similar information about a specified player\n" +
                 "__**neptune.rep leaderboards [size]**__ = Show the top n players with the highest rating, or the top ten if size is left unspecified\n" +
                 "__**neptune.rep**__ = Display this information")
                 .build();
         e.getChannel().sendMessage(embed).queue();
     }
 
-    private void showRating(String name, String channelName, String ID, MessageReceivedEvent e) {
-        ResultSet info = db.fetchRow(channelName, ID);
+    private void showRating(String name, String guildID, String ID, MessageReceivedEvent e) {
+        ResultSet info = db.fetchRow(guildID, ID);
         try {
             if (info.next()) { // There is an entry under their name
                 int rating = info.getInt("rating");
@@ -65,6 +70,7 @@ public class SimpleDisplay implements Function {
                 MessageEmbed embed = new EmbedBuilder().setColor(Color.CYAN)
                         .setTitle("Rating")
                         .setDescription("Information about " + name + "'s  rating:\n" +
+                        "[✓] __Level__: " + rating / rankupLevel + "\n" +
                         "[✓] __Rating__: " + rating + "\n" +
                         "[✓] __Positive Ratings Received__: " + posRatings + "\n" +
                         "[✓] __Negative Ratings Received__: " + negRatings)

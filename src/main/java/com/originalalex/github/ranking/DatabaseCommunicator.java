@@ -8,6 +8,8 @@ import jdk.nashorn.internal.parser.JSONParser;
 
 import java.nio.charset.Charset;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseCommunicator {
 
@@ -17,7 +19,7 @@ public class DatabaseCommunicator {
     private boolean cooldownHasBeenInitialized; // to inform certain methods that the cooldown has been set already (to avoid calling the same method repetitively)
 
     private static final String INSERT_INFO = "INSERT INTO ranks VALUES('%channel%', '%id%', %rating%, %posRatings%, %negRatings%)";
-    private static final String SELECT_SPECIFIC = "SELECT * FROM ranks WHERE id LIKE '%id%' AND channel LIKE '%channel%' LIMIT 1"; // Can limit to 1 because hopefully channel/id are unique
+    private static final String SELECT_SPECIFIC = "SELECT * FROM ranks WHERE id LIKE '%id%' AND channel LIKE '%channel%'"; // Can limit to 1 because hopefully channel/id are unique
     private static final DatabaseCommunicator INSTANCE = new DatabaseCommunicator();
 
     public static DatabaseCommunicator getInstance() {
@@ -31,7 +33,7 @@ public class DatabaseCommunicator {
 
     private void connect() {
         try {
-            String url = "jdbc:sqlite:src/main/config/Discord.db";
+            String url = "jdbc:sqlite:src/main/resources/Discord.db";
             connection = DriverManager.getConnection(url);
             Statement statement = connection.createStatement();
 
@@ -139,6 +141,25 @@ public class DatabaseCommunicator {
         JsonParser parser = new JsonParser();
         JsonObject root = parser.parse(json).getAsJsonObject();
         cooldown = root.get("rep_cooldown_time_seconds").getAsInt();
+    }
+
+    // For leaderboards:
+
+    public List<Object[]> getLeaderboard(int depth) {
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM ranks ORDER BY rating DESC LIMIT "  + depth);
+            List<Object[]> ranking = new ArrayList<>();
+            while (resultSet.next()) { // While there are valid entries in the result set
+                String id = resultSet.getString("id");
+                int rating = resultSet.getInt("rating");
+                ranking.add(new Object[]{id, rating});
+            }
+            return ranking;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
