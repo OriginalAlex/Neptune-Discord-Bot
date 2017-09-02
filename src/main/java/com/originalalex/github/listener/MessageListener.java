@@ -1,5 +1,6 @@
 package com.originalalex.github.listener;
 
+import com.originalalex.github.chatterbot.Talk;
 import com.originalalex.github.functionalities.*;
 import com.originalalex.github.ranking.ModifyReputation;
 import com.originalalex.github.ranking.SimpleDisplay;
@@ -19,6 +20,7 @@ public class MessageListener extends ListenerAdapter {
     private ModifyReputation modifyReputation; // The class to do with changing reputation
     private SimpleDisplay simpleDisplay; // Showing reputation
     private WipeDatabase wipeDatabase; // Clear the reputation database
+    private Talk talk; // A smart bot that can hold a conversation [implemented using the Cleverbot API]
 
     public MessageListener(JDA jda) {
         this.hl = new HorizontalLine();
@@ -28,12 +30,16 @@ public class MessageListener extends ListenerAdapter {
         this.crypto = new Crypto();
         this.modifyReputation = new ModifyReputation();
         this.simpleDisplay = new SimpleDisplay(modifyReputation.getLevel());
-        this.wipeDatabase = new WipeDatabase();
+        this.wipeDatabase = new WipeDatabase(modifyReputation.getWipeDatabaseUsers());
+        this.talk = new Talk();
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent e) {
         String[] parts = e.getMessage().getStrippedContent().split(" ");
+        if (parts[0].equalsIgnoreCase("neptune.talk") || parts[0].equalsIgnoreCase("neptune.cleverbot") || parts[0].equalsIgnoreCase("neptune.chat")) {
+            talk.handle(e);
+        }
         if (parts.length == 3) {
             switch (parts[0].toLowerCase()) {
                 case "neptune.rep":
