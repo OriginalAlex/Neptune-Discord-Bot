@@ -10,11 +10,21 @@ This is a fairly simple Discord bot I have been working on which aims to facilit
 
 **- neptune.rep [Username]** --> Show similar information about another user
 
-**- neptune.setrep [Username] **
+**- neptune.setrep [Username]** --> Set the reputation of a given user (Only players given this permission in the config.json can execute this command)
+
+**-neptune.wipdedb** --> Completely wipe the database for reputation (similarly, only players given such permission can use this feature)
 
 **- neptune.rep** --> Display the help for all reputation commands.
 
 **- neptune.rep leaderboards [number]** --> The default size of the leaderboards is 10, but you can specify a length and this will show the users with the highest reputation rating.
+
+**-neptune.poll "time duration" (QUESTION) [OPTION 1], [OPTION 2]... [OPTION X]** --> The command to be used for creating polls. It is essential that this order is following ie. the question is wrapped in brackes, and all the options are wrapped in square brackets. The poll will then be given an ID (a 3-digit number) to which it will be referred to in future commands
+
+**-neptune.vote (ID) (Option)** --> Vote on a certain poll's ID and on a certain option in that specific poll.
+
+**-neptune.poll info (ID)** --> Provides a message containing all the information pertaining to a selected poll. This information includes: the question, all its options, the respective votes of the options.
+
+**-neptune.poll end (ID)** --> This command can only be executed by the original creator of the poll. This ends the poll prematurely (before the aforementioned time limit is met)
 
 **- neptune.wiki [Article Name]** --> Returns the first paragraph of a wikipedia article in an aesthetic message embed.
 
