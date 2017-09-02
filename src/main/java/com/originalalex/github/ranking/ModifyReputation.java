@@ -16,12 +16,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -35,6 +30,7 @@ public class ModifyReputation implements Function {
 
     private Map<Integer, String> emotesAndLevels;
     private List<String> usersWhoCanSetrep;
+    private List<String> usersWhoCanWipeDB;
     private int getLevel;
 
     public ModifyReputation() {
@@ -45,7 +41,7 @@ public class ModifyReputation implements Function {
     }
 
     @Override
-    public void handle(MessageReceivedEvent e) {
+    public void handle(MessageReceivedEvent e, String[] parts) {
         boolean positive;
         switch (parts[1]) {
             case "+":
@@ -107,6 +103,10 @@ public class ModifyReputation implements Function {
                 int targetsNewRating = rankingCalculator.calculateNewRating(targetsRating, positive); // calculate new rating
                 db.setData(guild, targetUserID, targetsNewRating, targetsPositiveRatings, targetsNegativeRatings); // Update the entry with the new rating/pos/neg rating values
 
+                if (hasRankedUp(positive, targetsNewRating)) { // send a rankup message
+                    e.getChannel().sendMessage("Congratulations, you have levelled up to level " + targetsNewRating / getLevel + "!");
+                }
+
                 String emoji = getEmojiToUse(positive, targetsNewRating);
                 MessageHistory history = e.getChannel().getHistory();
                 history
@@ -116,11 +116,18 @@ public class ModifyReputation implements Function {
                                             .limit(1)
                                             .forEach(m -> m.addReaction(emoji).queue()));
 
-                //db.addCooldown(senderUserID, targetUserID);
+                db.addCooldown(senderUserID, targetUserID);
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
+    }
+
+    private boolean hasRankedUp(boolean positive, int level) {
+        if (!positive) {
+            return false;
+        }
+        return level % getLevel == 0;
     }
 
     private String getEmojiToUse(boolean positiveRating, int level) {
@@ -144,6 +151,8 @@ public class ModifyReputation implements Function {
 
             emotesAndLevels = new TreeMap<>(Collections.reverseOrder()); // Keys should be in descending order
             getLevel = root.get("rep_rankup_every_x_levels").getAsInt();
+            usersWhoCanWipeDB = new ArrayList<>();
+            usersWhoCanSetrep = new ArrayList<>();
 
             for (int i = 0; i < emotesArray.size(); i++) { // Start from the end of the array (so we get the numbers in descending order
                 JsonElement obj = emotesArray.get(i);
@@ -153,12 +162,15 @@ public class ModifyReputation implements Function {
                 emotesAndLevels.put(level, emoji);
             }
 
-            usersWhoCanSetrep = new ArrayList<>();
-
             JsonArray ids = root.getAsJsonArray("id_of_users_who_can_setrep");
 
             for (JsonElement el : ids) {
                 usersWhoCanSetrep.add(el.getAsString());
+            }
+
+            JsonArray ids2 = root.getAsJsonArray("id_of_users_who_can_wipedb");
+            for (JsonElement el : ids) {
+                usersWhoCanWipeDB.add(el.getAsString());
             }
 
         } catch (Exception e) {
@@ -199,15 +211,12 @@ public class ModifyReputation implements Function {
         }
     }
 
-    public void setParts(String[] t) {
-        this.parts = t;
-    }
-
     // Set rating [ADMIN COMMAND]
 
     public void setRep(MessageReceivedEvent e) { // Will be of the format [neptune.setrep @[NAME] [LEVEL]
         if (!usersWhoCanSetrep.contains(e.getAuthor().getId())) {
             e.getChannel().sendMessage("You do not have permission to perform this command!").queue();
+            return;
         }
         String[] parts = e.getMessage().getStrippedContent().split(" ");
         List<User> taggedUsers = e.getMessage().getMentionedUsers();
@@ -241,9 +250,14 @@ public class ModifyReputation implements Function {
         }
     }
 
+    // Getters:
 
     public int getLevel() {
         return this.getLevel;
+    }
+
+    public List<String> getWipeDatabaseUsers() {
+        return this.usersWhoCanWipeDB;
     }
 
 }
