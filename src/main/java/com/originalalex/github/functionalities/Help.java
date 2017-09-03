@@ -6,26 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import net.dv8tion.jda.core.entities.PrivateChannel;
-import net.dv8tion.jda.core.entities.impl.UserImpl;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class Help implements Function {
 
     // Section of README.md to read from.
     private static final String SECTION = "Current Commands:";
-    private static final int CACHE_VALIDITY = 120; // The interval of time after
-    // which we should fetch the
-    // file again.
 
-    private String cache;
-    private long lastFetched;
     private String message;
     private List<String> sendOrder;
 
     public Help() {
-        cache = "";
-        lastFetched = 0;
         // Can we read from the cache?
 
         // Get README.md (use the raw text file)
@@ -85,13 +76,6 @@ public class Help implements Function {
 
     @Override
     public void handle(MessageReceivedEvent e, String[] parts) {
-        // Can we read from the cache?
-        if (!cache.equalsIgnoreCase("") && System.currentTimeMillis() - lastFetched >= CACHE_VALIDITY * 1000) {
-            e.getAuthor().openPrivateChannel().queue(channel -> {
-                channel.sendMessage(cache).queue();
-            });
-            return;
-        }
         e.getAuthor().openPrivateChannel().queue(channel -> sendOrder.forEach(m -> channel.sendMessage(m).queue()));
     }
 
