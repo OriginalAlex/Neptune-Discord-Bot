@@ -21,7 +21,7 @@ public class WipeDatabase implements Function {
     public void handle(MessageReceivedEvent e, String[] parts) {
         String userId = e.getAuthor().getId();
         if (!usersWithPermissions.contains(userId)) {
-            e.getChannel().sendMessage("You do not have permission to perform this command!").queue();
+            e.getMessage().addReaction("❌").queue();
             return;
         }
         db.wipeDatabase();

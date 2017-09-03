@@ -1,6 +1,7 @@
 package com.originalalex.github.polling;
 
 import com.originalalex.github.helper.NumberParser;
+import com.originalalex.github.helper.ReadableTime;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -21,6 +22,7 @@ public class Poll {
     private Map<Integer, String> optionsID; // attach a number to each option (to make it easier to vote)
     private List<String> usersWhoHaveVoted; // list of users who have voted already
     private boolean hasEndedPrematurely = false;
+    private int timeLeft;
 
     public Poll(int id, String question, String creatorID, List<String> options, PollingManager manager) {
         this.numberParser = new NumberParser();
@@ -59,6 +61,13 @@ public class Poll {
                 }
             }
         }, (long) (duration * 60 * 1000)); // convert the minutes to milliseconds for the timertask
+        timeLeft = (int) duration * 60; // time left in seconds
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                timeLeft--;
+            }
+        }, 0, 1000); // update every second
     }
 
     public void displayInformation(MessageReceivedEvent e) {
@@ -76,7 +85,7 @@ public class Poll {
             argumentDisplay += "\n";
         }
 
-        argumentDisplay = argumentDisplay.substring(0, argumentDisplay.lastIndexOf("\n"));
+        argumentDisplay += "The poll has " + ReadableTime.convertSeconds(timeLeft) + " time remaining.";
 
         MessageEmbed embed = new EmbedBuilder()
                 .setColor(Color.CYAN)
@@ -100,12 +109,7 @@ public class Poll {
                 optionsAsMap.put(voters,arr);
             }
         }
-        SortedSet<Integer> sortedKeys = new TreeSet<>(new Comparator<Integer>() {
-            @Override
-            public int compare(Integer integer, Integer t1) { // sort in descending order
-                return t1.compareTo(integer);
-            }
-        });
+        SortedSet<Integer> sortedKeys = new TreeSet<>(Comparator.reverseOrder());
         optionsAsMap.keySet().stream().forEach(l -> sortedKeys.add(l));
         int top = sortedKeys.first();
         List<String> topValues = optionsAsMap.get(top);
@@ -146,6 +150,14 @@ public class Poll {
 
     public int getNumberOfOptions() {
         return optionsWithVotes.size();
+    }
+
+    public int getTimeRemaining() {
+        return this.timeLeft;
+    }
+
+    public String getQuestion() {
+        return this.question;
     }
 
 }

@@ -1,11 +1,17 @@
 package com.originalalex.github.polling;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.originalalex.github.helper.FileHelper;
 import com.originalalex.github.helper.NumberParser;
+import com.originalalex.github.helper.ReadableTime;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+import java.awt.*;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.List;
@@ -15,6 +21,7 @@ public class PollingManager {
     private PollingParser parser;
     private NumberParser numberParser;
     private int maxPollDuration;
+    private List<String> usersWhoCanDeletePolls;
 
     private Map<Integer, Poll> pollMap;
 
@@ -28,11 +35,17 @@ public class PollingManager {
 
         String config = FileHelper.getFileAsString(Charset.defaultCharset());
         JsonParser parser = new JsonParser();
-        JsonObject obj = parser.parse(config).getAsJsonObject();
-        this.maxPollDuration = obj.get("max_poll_duration_in_minutes").getAsInt();
+        JsonObject root = parser.parse(config).getAsJsonObject();
+        this.maxPollDuration = root.get("max_poll_duration_in_minutes").getAsInt();
+        this.usersWhoCanDeletePolls = new ArrayList<>();
+
+        JsonArray users = root.getAsJsonArray("can_delete_polls");
+        for (JsonElement e : users) {
+            usersWhoCanDeletePolls.add(e.getAsString());
+        }
     }
 
-    public void handle(MessageReceivedEvent e, String[] parts, double duration) {
+    private void handle(MessageReceivedEvent e, String[] parts, double duration) {
         String message = e.getMessage().getStrippedContent();
         List<String> arguments = parser.parse(message);
         if (arguments.size() <= 2 || arguments.size() >= 6) { // invalid message
@@ -44,6 +57,7 @@ public class PollingManager {
         while (pollMap.containsKey(randID)) {
             randID = random.nextInt(900) + 100; // repeat til unique
         }
+
         String successMessage = "The poll was successfully created: " + question + ". Vote with __neptune.vote " + randID + " [#]__, the following are options:\n";
 
         List<String> values = new ArrayList<>();
@@ -90,7 +104,7 @@ public class PollingManager {
 
     }
 
-    public void displayInformation(MessageReceivedEvent e) { // will be of format: neptune.poll show [ID]
+    private void displayInformation(MessageReceivedEvent e) { // will be of format: neptune.poll show [ID]
         String[] parts = e.getMessage().getStrippedContent().split(" ");
         String number = parts[2];
         int id = numberParser.parse(number);
@@ -117,7 +131,11 @@ public class PollingManager {
             handle(e, parts, val);
         }
         else if (parts[1].equalsIgnoreCase("show") || parts[1].equalsIgnoreCase("info")) {
-            displayInformation(e);
+            if (parts.length == 3) { // they have specified a poll
+                displayInformation(e);
+            } else if (parts.length == 2) { // they request information on ever active poll
+                showInfoOnAllPolls(e);
+            }
         } else if ((parts[1].equals("stop") || parts[1].equalsIgnoreCase("end")) && parts.length == 3) {
             String possibleID = parts[2];
             int number = numberParser.parse(possibleID);
@@ -127,11 +145,48 @@ public class PollingManager {
             }
             Poll poll = pollMap.get(number);
             poll.endPrematurely(e);
+        } else if (parts[1].equalsIgnoreCase("delete") && parts.length == 3) {
+            String possibleID = parts[2];
+            int number = numberParser.parse(possibleID);
+            if (!pollMap.containsKey(number)) {
+                e.getChannel().sendMessage("You must enter a valid poll ID");
+                return;
+            }
+            deletePoll(e, number);
         }
     }
 
-    public void printPrematurely(MessageReceivedEvent e, int ID) {
-        String idOfAuthor = e.getAuthor().getId();
+    private void deletePoll(MessageReceivedEvent e, int id) {
+        String authorID = e.getAuthor().getId();
+        if (usersWhoCanDeletePolls.contains(authorID)) {
+            if (pollMap.containsKey(id)) {
+                pollMap.remove(id);
+                e.getMessage().addReaction("\uD83D\uDC4D"); // add thumbs up to signify it was a success
+            } else {
+                e.getChannel().sendMessage("There is no active poll with the ID " + id).queue();
+            }
+        } else {
+            e.getAuthor().openPrivateChannel().queue(message -> {
+                message.sendMessage("You do not have valid permission to perform that command!");
+            });
+            e.getMessage().addReaction("❌").queue();
+        }
+    }
+
+    private void showInfoOnAllPolls(MessageReceivedEvent e) {
+        List<Poll> polls = new ArrayList<>();
+        String info = "The following are the active polls:\n";
+        for (Map.Entry<Integer, Poll> entry : pollMap.entrySet()) {
+            Poll poll = entry.getValue();
+            info += "(" + entry.getKey() + ") **" + poll.getQuestion() + "**: *" + ReadableTime.convertSeconds(poll.getTimeRemaining()) + "*\n";
+        }
+        info = info.substring(0, info.lastIndexOf("\n"));
+        MessageEmbed information = new EmbedBuilder()
+                .setColor(Color.CYAN)
+                .setTitle("Poll Information")
+                .setDescription(info)
+                .build();
+        e.getChannel().sendMessage(information).queue();
     }
 
     public void removePollFromID(int id) {

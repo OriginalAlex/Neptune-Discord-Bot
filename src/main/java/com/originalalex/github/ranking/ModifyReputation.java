@@ -215,7 +215,7 @@ public class ModifyReputation implements Function {
 
     public void setRep(MessageReceivedEvent e) { // Will be of the format [neptune.setrep @[NAME] [LEVEL]
         if (!usersWhoCanSetrep.contains(e.getAuthor().getId())) {
-            e.getChannel().sendMessage("You do not have permission to perform this command!").queue();
+            e.getMessage().addReaction("❌").queue();
             return;
         }
         String[] parts = e.getMessage().getStrippedContent().split(" ");
