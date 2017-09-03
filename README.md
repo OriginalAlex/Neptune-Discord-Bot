@@ -38,6 +38,8 @@ This is a fairly simple Discord bot I have been working on which aims to facilit
 
 **- neptune.hl** --> Displays a horizontal line.
 
+**- neptune.help** --> Show this in a private message.
+
 
 ## **To-be implemented commands:**
 **- me.serverStatus [Minecraft Server]** --> Will return information on a minecraft server including its player count, motd and your ping to it
