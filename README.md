@@ -4,6 +4,8 @@ This is a fairly simple Discord bot I have been working on which aims to facilit
 
 ## **Current Commands:**
 
+**- neptune.chat [Message]** --> Have a conversation with Neptune!
+
 **- neptune.rep [+/-] @User** --> Increases or decreases the reputation of a user, and states the user's new rating.
 
 **- neptune.rep show** --> Show information about your reputation including your rating, the number of people who rated you positively, and the number of people who rated you negatively
@@ -40,8 +42,6 @@ This is a fairly simple Discord bot I have been working on which aims to facilit
 ## **To-be implemented commands:**
 **- me.serverStatus [Minecraft Server]** --> Will return information on a minecraft server including its player count, motd and your ping to it
 
-**-me.strawpoll [arguments]** --> This will begin a strawpoll, which the creator can then manipulate, or perhaps only people in the discord with certain permissions will be able to utilize this feature.
-
 
 ## **Prerequisites:**
 The following are the required dependencies:
@@ -67,6 +67,16 @@ The following are the required dependencies:
     <groupId>commons-io</groupId>
     <artifactId>commons-io</artifactId>
     <version>2.5</version>
+</dependency>
+<dependency>
+  <groupId>org.xerial</groupId>
+  <artifactId>sqlite-jdbc</artifactId>
+  <version>3.20.0</version>
+</dependency>
+<dependency>
+  <groupId>ca.pjer</groupId>
+  <artifactId>chatter-bot-api</artifactId>
+  <version>1.4.7</version>
 </dependency>
 ```
 
