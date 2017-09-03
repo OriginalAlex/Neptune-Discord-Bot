@@ -79,6 +79,7 @@ public class PollingManager {
     }
 
     public void vote(MessageReceivedEvent e) { // will be of format: neptune.vote [ID] [NUMBER]
+        System.out.println("vote");
         String message = e.getMessage().getStrippedContent();
         String[] parts = message.split(" ");
         String id = parts[1];
@@ -175,6 +176,10 @@ public class PollingManager {
 
     private void showInfoOnAllPolls(MessageReceivedEvent e) {
         List<Poll> polls = new ArrayList<>();
+        if (pollMap.size() == 0) {
+            e.getChannel().sendMessage("There are currently no active polls").queue();
+            return;
+        }
         String info = "The following are the active polls:\n";
         for (Map.Entry<Integer, Poll> entry : pollMap.entrySet()) {
             Poll poll = entry.getValue();

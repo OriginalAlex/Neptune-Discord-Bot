@@ -40,7 +40,7 @@ public class Poll {
     }
 
     public void vote(MessageReceivedEvent e, int optionID) {
-        String senderID = e.getAuthor().getId();
+        String senderID = e.getMessage().getAuthor().getId();
         if (usersWhoHaveVoted.contains(senderID)) {
             e.getChannel().sendMessage("You have already voted on this poll!").queue();
             return;
