@@ -71,7 +71,7 @@ public class Help implements Function {
 			scanner.close();
 		} catch (IOException exception) {
 			exception.printStackTrace();
-
+			channel.sendMessage("An error occured whilst trying to send the help message!");
 		}
 	}
 
