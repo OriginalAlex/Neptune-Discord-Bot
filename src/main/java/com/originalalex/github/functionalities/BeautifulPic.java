@@ -18,7 +18,7 @@ import java.net.URL;
 public class BeautifulPic implements Function {
 
     @Override
-    public void handle(MessageReceivedEvent e) {
+    public void handle(MessageReceivedEvent e, String[] parts) {
         long start = System.currentTimeMillis();
         JsonObject page = readPageAsJson("https://www.reddit.com/r/EarthPorn/.json?top/?sort=top&t=day/.json");
         if (page == null || !page.has("data")) {

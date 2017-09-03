@@ -18,7 +18,8 @@ public class Crypto implements Function {
     private static final String COINMARKETCAP_BASE_URL = "https://coinmarketcap.com/currencies/";
 
     @Override
-    public void handle(MessageReceivedEvent e) {
+    public void handle(MessageReceivedEvent e, String[] parts) {
+        setTicker(parts[1]);
         try {
             Document doc = Jsoup.connect(COINMARKETCAP_BASE_URL + ticker)
                     .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6") // User agent for connections
@@ -53,7 +54,7 @@ public class Crypto implements Function {
         }
     }
 
-    public void setTicker(String ticker) {
+    private void setTicker(String ticker) {
         switch (ticker.toLowerCase()) {
             case "btc": this.ticker = "Bitcoin"; break; // common abbreviations
             case "eth": this.ticker = "Ethereum"; break;

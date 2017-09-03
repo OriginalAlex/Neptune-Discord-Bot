@@ -8,21 +8,18 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 
-/**
- * Created by Alex on 28/08/2017.
- */
 public class Wiki implements Function {
 
     private String query;
     private Scrape scrape;
 
     public Wiki() {
-        this.query = query;
         this.scrape = new Scrape();
     }
 
     @Override
-    public void handle(MessageReceivedEvent e) {
+    public void handle(MessageReceivedEvent e, String[] parts) {
+        this.query = e.getMessage().getContent().split(" ")[1];
         String firstParagraph = scrape.getFirstWikiParagraph(query);
         MessageEmbed embed;
         if (firstParagraph == null) {
@@ -48,10 +45,6 @@ public class Wiki implements Function {
                     .build();
         }
         e.getChannel().sendMessage(embed).queue();
-    }
-
-    public void setQuery(String query) {
-        this.query = query.replaceAll("\\\\", "");
     }
 
 }

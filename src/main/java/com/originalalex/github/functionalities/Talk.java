@@ -1,7 +1,6 @@
-package com.originalalex.github.chatterbot;
+package com.originalalex.github.functionalities;
 
 import com.google.code.chatterbotapi.*;
-import com.originalalex.github.functionalities.Function;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.jsoup.Jsoup;
 
@@ -20,7 +19,7 @@ public class Talk implements Function {
     }
 
     @Override
-    public void handle(MessageReceivedEvent e) {
+    public void handle(MessageReceivedEvent e, String[] parts) {
         String message = e.getMessage().getStrippedContent();
         message = message.split(" ", 2)[1]; // remove the neptune.cleverbot part
         try {
