@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             JDA jda = new JDABuilder(AccountType.BOT)
-                    .setToken("MzUyNTczODI4OTc2NzM4MzA2.DIrdxw.Wme-AQopVx0YkGfXwxIkLGHJbIM")
+                    .setToken([my token])
                     .buildBlocking();
             jda.addEventListener(new MessageListener(jda));
         } catch (Exception e) {
