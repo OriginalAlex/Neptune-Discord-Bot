@@ -24,7 +24,8 @@ public class SimpleDisplay implements Function {
     }
 
     @Override
-    public void handle(MessageReceivedEvent e) {
+    public void handle(MessageReceivedEvent e, String[] parts) {
+        this.secondArgument = parts[1];
         switch(secondArgument) {
             case "show":
             case "reveal":
@@ -86,10 +87,6 @@ public class SimpleDisplay implements Function {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-    }
-
-    public void setSecondArgument(String arg) {
-        this.secondArgument = arg;
     }
 
 }

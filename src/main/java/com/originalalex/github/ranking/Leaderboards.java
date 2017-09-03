@@ -13,7 +13,7 @@ public class Leaderboards implements Function {
     private int depth;
 
     @Override
-    public void handle(MessageReceivedEvent e) {
+    public void handle(MessageReceivedEvent e, String[] parts) {
         List<Object[]> users = databaseCommunicator.getLeaderboard(depth); // Each user has an Object[] -> object[0] = their id, object[1] = their rating.
 
         String message = "The top " + depth + " users with the highest rating are:\n";
